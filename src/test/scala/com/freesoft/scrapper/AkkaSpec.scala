@@ -2,6 +2,8 @@ package com.freesoft.scrapper
 
 import akka.actor.{ActorRefFactory, ActorSystem}
 import akka.stream.Materializer
+import akka.util.Timeout
+import com.freesoft.scrapper.infrastructure.WebScraperConfig
 import org.scalatest.{BeforeAndAfterAll, Suite}
 import org.scalatest.concurrent.ScalaFutures
 
@@ -23,5 +25,6 @@ trait AkkaSpec extends ScalaFutures with BeforeAndAfterAll {
     system.terminate()
   }
 
+  val webScraperConfig = new WebScraperConfig("application.conf")
 
 }

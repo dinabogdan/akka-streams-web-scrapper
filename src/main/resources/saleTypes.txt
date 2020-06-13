@@ -1,3 +1,4 @@
-De vânzare
-De închiriat
-La licitaţie
+vanzare-apartamente
+vanzare-garsoniere
+vanzare-case-vile
+vanzare-terenuri-constructii

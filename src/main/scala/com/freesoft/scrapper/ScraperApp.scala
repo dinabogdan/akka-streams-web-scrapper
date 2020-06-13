@@ -1,4 +1,4 @@
-package com.freesoft.scrapper.infrastructure
+package com.freesoft.scrapper
 
 import akka.actor.{ActorRefFactory, ActorSystem}
 import akka.stream.Materializer

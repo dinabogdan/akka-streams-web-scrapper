@@ -3,8 +3,8 @@ package com.freesoft.scrapper
 import akka.NotUsed
 import akka.actor.{ActorRefFactory, ActorSystem}
 import akka.stream.Materializer
-import akka.stream.scaladsl.{Flow, Source}
-import com.freesoft.scrapper.infrastructure.{FileContentSourceProvider, HttpRequestURI, ImmobileTypesFilter, ImobiliareHttpRequestProvider, PlacesFilter, SaleTypeFilter}
+import akka.stream.scaladsl.{Flow, Keep, Sink, Source}
+import com.freesoft.scrapper.infrastructure.{FileContentSourceProvider, HttpRequestURI, ImmobileTypesFilter, ImobiliareHttpRequestProvider, PlacesFilter, SaleTypeFilter, WebScraper, WebScraperConfig}
 
 import scala.concurrent.ExecutionContext
 
@@ -38,20 +38,15 @@ object ScraperApp {
 
   val imobiliareHttpRequestProvider = new ImobiliareHttpRequestProvider(saleTypesFilterProvider, immobileTypesFilterProvider, placesFilterProvider)
 
+  val webScraper = new WebScraper(new WebScraperConfig("application.conf"))
+
   def run(): Unit = {
 
     pageNumbers.via(imobiliareHttpRequestProvider.addSaleTypes)
-
-
-    pageNumbers.zip(
-      saleTypesFilterProvider.items
-    ).map {
-      case (httpRequestURI: HttpRequestURI, saleTypeFilter: SaleTypeFilter) => httpRequestURI.addSaleType(saleTypeFilter)
-    }.zip(
-      placesFilterProvider.items
-    ).map {
-      case (httpRequestURI: HttpRequestURI, placeFilter: PlacesFilter) => httpRequestURI.addPlace(placeFilter)
-    }
+      .via(imobiliareHttpRequestProvider.addPlaces)
+      .via(imobiliareHttpRequestProvider.assembleHttpRequest)
+      .via(webScraper.queueRequests)
+      .run()
 
   }
 }

@@ -1,11 +1,11 @@
 package com.freesoft.scrapper.infrastructure
 
-import akka.Done
+import akka.{Done, NotUsed}
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
 import akka.stream.{OverflowStrategy, QueueOfferResult}
-import akka.stream.scaladsl.{Sink, Source}
+import akka.stream.scaladsl.{Flow, Sink, Source}
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.util.{Failure, Success, Try}
@@ -15,6 +15,13 @@ class WebScraper(
                 )(
                   implicit val actorSystem: ActorSystem,
                   implicit val executionContext: ExecutionContext) {
+
+  val queueRequests: Flow[Seq[HttpRequest], Seq[Future[HttpResponse]], NotUsed] = Flow[Seq[HttpRequest]]
+    .map(sequence =>
+      sequence.map(
+        request => queueRequest(request)
+      )
+    )
 
   def queueRequest(request: HttpRequest): Future[HttpResponse] = {
     val responsePromise = Promise[HttpResponse]()

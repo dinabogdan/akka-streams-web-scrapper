@@ -1,7 +1,8 @@
 package com.freesoft.scrapper.infrastructure
 
 import akka.NotUsed
-import akka.stream.scaladsl.Flow
+import akka.http.scaladsl.model.{HttpMethod, HttpMethods, HttpRequest, Uri}
+import akka.stream.scaladsl.{Flow, Sink}
 
 trait HttpRequestProvider {
 
@@ -35,4 +36,25 @@ class ImobiliareHttpRequestProvider(
     .flatMapConcat(httpRequest => saleTypeFilterProvider.items.fold(List[HttpRequestURI]()) {
       (acc, element) => httpRequest.addSaleType(element) :: acc
     })
+
+
+  val addPlaces: Flow[Seq[HttpRequestURI], Seq[HttpRequestURI], NotUsed] = Flow[Seq[HttpRequestURI]]
+    .flatMapConcat(sequence =>
+      placesFilterProvider.items.fold(List[HttpRequestURI]()) {
+        (acc, element) =>
+          acc.appendedAll(
+            sequence.map(
+              httpRequestURI => httpRequestURI.addPlace(element)
+            )
+          )
+      }
+    )
+
+  val assembleHttpRequest: Flow[Seq[HttpRequestURI], Seq[HttpRequest], NotUsed] = Flow[Seq[HttpRequestURI]]
+    .map(sequence =>
+      sequence.map(httpRequestURI =>
+        HttpRequest(uri =
+          s"www.imobiliare.ro/${httpRequestURI.saleType.getOrElse()}/${httpRequestURI.place.getOrElse()}")
+      )
+    )
 }

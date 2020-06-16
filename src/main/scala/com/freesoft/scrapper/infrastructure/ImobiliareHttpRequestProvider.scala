@@ -1,13 +1,8 @@
 package com.freesoft.scrapper.infrastructure
 
 import akka.NotUsed
-import akka.http.scaladsl.model.{HttpMethod, HttpMethods, HttpRequest, Uri}
-import akka.stream.scaladsl.{Flow, Sink}
-
-trait HttpRequestProvider {
-
-
-}
+import akka.http.scaladsl.model.HttpRequest
+import akka.stream.scaladsl.Flow
 
 case class HttpRequestURI(val saleType: Option[String] = Option.empty,
                           val immobileType: Option[String] = Option.empty,
@@ -50,7 +45,7 @@ class ImobiliareHttpRequestProvider(
       }
     )
 
-  val assembleHttpRequest: Flow[Seq[HttpRequestURI], Seq[HttpRequest], NotUsed] = Flow[Seq[HttpRequestURI]]
+  val assembleHttpRequests: Flow[Seq[HttpRequestURI], Seq[HttpRequest], NotUsed] = Flow[Seq[HttpRequestURI]]
     .map(sequence =>
       sequence.map(httpRequestURI =>
         HttpRequest(uri =

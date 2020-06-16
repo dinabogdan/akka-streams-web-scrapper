@@ -5,7 +5,7 @@ import akka.actor.{ActorRefFactory, ActorSystem}
 import akka.stream.Materializer
 import akka.stream.scaladsl.Source
 import akka.util.Timeout
-import com.freesoft.scrapper.infrastructure.{FileContentSourceProvider, HttpRequestURI, ImmobileTypesFilter, PlacesFilter, SaleTypeFilter, WebScraperConfig}
+import com.freesoft.scrapper.infrastructure.{FileContentSourceProvider, HttpRequestURI, ImmobileTypesFilter, PlacesFilter, SaleTypeFilter, WebScraper, WebScraperConfig}
 import org.scalatest.{BeforeAndAfterAll, Suite}
 import org.scalatest.concurrent.ScalaFutures
 
@@ -48,4 +48,5 @@ trait AkkaSpec extends ScalaFutures with BeforeAndAfterAll {
     Iterator.range(0, 10).map(i => HttpRequestURI(pageNumber = i))
   )
 
+  val webScraper = new WebScraper(webScraperConfig)
 }

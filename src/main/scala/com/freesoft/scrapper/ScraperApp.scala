@@ -1,21 +1,16 @@
 package com.freesoft.scrapper
 
+import java.util.concurrent.TimeUnit
+
 import akka.NotUsed
-import akka.actor.{ActorRefFactory, ActorSystem}
-import akka.stream.Materializer
-import akka.stream.scaladsl.{Flow, Keep, Sink, Source}
-import com.freesoft.scrapper.infrastructure.{FileContentSourceProvider, HttpRequestURI, ImmobileTypesFilter, ImobiliareHttpRequestProvider, PlacesFilter, SaleTypeFilter, WebScraper, WebScraperConfig}
+import akka.http.scaladsl.Http
+import akka.http.scaladsl.model.HttpRequest
+import akka.stream.scaladsl.Source
+import com.freesoft.scrapper.infrastructure._
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.duration.FiniteDuration
 
-object ScraperApp {
-
-  implicit val system = ActorSystem("freesoft")
-  implicit protected val actorRefFactory: ActorRefFactory = system
-  implicit protected val materializer = Materializer(system)
-  implicit protected val executionContext: ExecutionContext = system.dispatcher
-
-  implicit val loggingAdapter = system.log
+object ScraperApp extends App with ScraperContext {
 
   val pageNumbers: Source[HttpRequestURI, NotUsed] = Source.fromIterator(() =>
     Iterator.range(0, 10).map(i => HttpRequestURI(pageNumber = i))
@@ -40,13 +35,11 @@ object ScraperApp {
 
   val webScraper = new WebScraper(new WebScraperConfig("application.conf"))
 
-  def run(): Unit = {
+      pageNumbers.via(imobiliareHttpRequestProvider.addSaleTypes)
+        .via(imobiliareHttpRequestProvider.addPlaces)
+        .via(imobiliareHttpRequestProvider.assembleHttpRequests)
+        .via(webScraper.queueRequests)
+        .run()
 
-    pageNumbers.via(imobiliareHttpRequestProvider.addSaleTypes)
-      .via(imobiliareHttpRequestProvider.addPlaces)
-      .via(imobiliareHttpRequestProvider.assembleHttpRequest)
-      .via(webScraper.queueRequests)
-      .run()
 
-  }
 }

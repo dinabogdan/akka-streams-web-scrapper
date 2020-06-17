@@ -10,7 +10,7 @@ sealed class SingleItemFilter(val item: String)
 
 case class PlacesFilter(val placeName: String) extends SingleItemFilter(placeName)
 
-case class ImmobileTypesFilter(val immobileType: String) extends SingleItemFilter(immobileType)
+case class EstateTypesFilter(val immobileType: String) extends SingleItemFilter(immobileType)
 
 case class SaleTypeFilter(val saleType: String) extends SingleItemFilter(saleType)
 

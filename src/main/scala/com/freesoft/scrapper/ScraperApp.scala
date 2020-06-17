@@ -21,9 +21,9 @@ object ScraperApp extends App with ScraperContext {
     { saleType => SaleTypeFilter(saleType) }
   )
 
-  val immobileTypesFilterProvider = new FileContentSourceProvider[ImmobileTypesFilter](
-    "immobileTypes.txt",
-    { immobileType => ImmobileTypesFilter(immobileType) }
+  val immobileTypesFilterProvider = new FileContentSourceProvider[EstateTypesFilter](
+    "estateTypes.txt",
+    { immobileType => EstateTypesFilter(immobileType) }
   )
 
   val placesFilterProvider = new FileContentSourceProvider[PlacesFilter](

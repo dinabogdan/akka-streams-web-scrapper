@@ -5,7 +5,7 @@ import akka.actor.{ActorRefFactory, ActorSystem}
 import akka.stream.Materializer
 import akka.stream.scaladsl.Source
 import akka.util.Timeout
-import com.freesoft.scrapper.infrastructure.{FileContentSourceProvider, HttpRequestURI, ImmobileTypesFilter, PlacesFilter, SaleTypeFilter, WebScraper, WebScraperConfig}
+import com.freesoft.scrapper.infrastructure.{FileContentSourceProvider, HttpRequestURI, EstateTypesFilter, PlacesFilter, SaleTypeFilter, WebScraper, WebScraperConfig}
 import org.scalatest.{BeforeAndAfterAll, Suite}
 import org.scalatest.concurrent.ScalaFutures
 
@@ -34,9 +34,9 @@ trait AkkaSpec extends ScalaFutures with BeforeAndAfterAll {
     { saleType => SaleTypeFilter(saleType) }
   )
 
-  val immobileTypesFilterProvider = new FileContentSourceProvider[ImmobileTypesFilter](
-    "immobileTypes.txt",
-    { immobileType => ImmobileTypesFilter(immobileType) }
+  val immobileTypesFilterProvider = new FileContentSourceProvider[EstateTypesFilter](
+    "estateTypes.txt",
+    { immobileType => EstateTypesFilter(immobileType) }
   )
 
   val placesFilterProvider = new FileContentSourceProvider[PlacesFilter](

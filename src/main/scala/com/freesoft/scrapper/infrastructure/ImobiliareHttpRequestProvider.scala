@@ -5,15 +5,15 @@ import akka.http.scaladsl.model.HttpRequest
 import akka.stream.scaladsl.Flow
 
 case class HttpRequestURI(val saleType: Option[String] = Option.empty,
-                          val immobileType: Option[String] = Option.empty,
+                          val estateType: Option[String] = Option.empty,
                           val place: Option[String] = Option.empty,
                           val pageNumber: Int = 0) {
   def addPlace(placeFilter: PlacesFilter): HttpRequestURI = {
     copy(place = Some(placeFilter.placeName))
   }
 
-  def addImmobileType(immobileTypesFilter: ImmobileTypesFilter): HttpRequestURI = {
-    copy(immobileType = Some(immobileTypesFilter.immobileType))
+  def addEstateType(estateTypesFilter: EstateTypesFilter): HttpRequestURI = {
+    copy(estateType = Some(estateTypesFilter.immobileType))
   }
 
   def addSaleType(saleTypeFilter: SaleTypeFilter): HttpRequestURI = {
@@ -23,7 +23,7 @@ case class HttpRequestURI(val saleType: Option[String] = Option.empty,
 
 class ImobiliareHttpRequestProvider(
                                      val saleTypeFilterProvider: FileContentSourceProvider[SaleTypeFilter],
-                                     val immobileTypesFilterProvider: FileContentSourceProvider[ImmobileTypesFilter],
+                                     val immobileTypesFilterProvider: FileContentSourceProvider[EstateTypesFilter],
                                      val placesFilterProvider: FileContentSourceProvider[PlacesFilter]
                                    ) {
 

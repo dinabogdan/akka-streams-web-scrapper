@@ -2,15 +2,17 @@ package com.freesoft.scrapper
 
 import akka.http.scaladsl.model.{HttpEntity, HttpResponse, StatusCode}
 import akka.stream.scaladsl.Sink
-import com.freesoft.scrapper.infrastructure.HtmlParser
+import com.freesoft.scrapper.infrastructure.{HtmlParser, documentSelector, elementsSelector, stringToHtmlDocument}
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 import org.scalatest.freespec.AnyFreeSpec
 
+import scala.jdk.CollectionConverters._
+
 class HtmlParserTest extends AnyFreeSpec with AkkaSpec {
 
   "HtmlParser" - {
-    val htmlParser = new HtmlParser
+    val htmlParser = new HtmlParser(transformersDispatcher)
     val content = scala.io.Source.fromResource("vanzare-apartamente-bucuresti.txt")
       .getLines()
       .mkString("\n")
@@ -20,7 +22,7 @@ class HtmlParserTest extends AnyFreeSpec with AkkaSpec {
     )
     "should convert an HTML String object to a Jsoup Document" in {
 
-      val document = htmlParser.stringToHtmlDocument(content)
+      val document = stringToHtmlDocument(content)
 
       assert(document != null)
       assert(document.isInstanceOf[Document])
@@ -44,7 +46,7 @@ class HtmlParserTest extends AnyFreeSpec with AkkaSpec {
         .futureValue
         .head
 
-      val document = htmlParser.stringToHtmlDocument(content)
+      val document = stringToHtmlDocument(content)
 
       assert(document != null)
       assert(document.select(".container-box-anunturi") != null)
@@ -57,7 +59,7 @@ class HtmlParserTest extends AnyFreeSpec with AkkaSpec {
         .futureValue
         .head
 
-      val containerBox = (htmlParser.stringToHtmlDocument andThen htmlParser.documentSelector) (content)(".container-box-anunturi")
+      val containerBox = (stringToHtmlDocument andThen documentSelector) (content)(".container-box-anunturi")
 
       assert(containerBox != null)
       assert(containerBox.isInstanceOf[Elements])
@@ -69,13 +71,29 @@ class HtmlParserTest extends AnyFreeSpec with AkkaSpec {
         .futureValue
         .head
 
-      val elements: String => Elements = (htmlParser.stringToHtmlDocument andThen htmlParser.documentSelector) (content)
-      val containerBox: String => Elements = (elements andThen htmlParser.elementsSelector) (".container-box-anunturi")
-      val itemScopeElements: String => Elements = (containerBox andThen htmlParser.elementsSelector) ("[itemscope]")
+      val elements: String => Elements = (stringToHtmlDocument andThen documentSelector) (content)
+      val containerBox: String => Elements = (elements andThen elementsSelector) (".container-box-anunturi")
+      val itemScopeElements: String => Elements = (containerBox andThen elementsSelector) ("[itemscope]")
       val items = itemScopeElements(".box-anunt")
 
       assert(items != null)
       assert(items.isInstanceOf[Elements])
+    }
+
+    "should" in {
+      val content = htmlParser.byteStringToString
+        .runWith(httpResponse.entity.dataBytes, Sink.seq)
+        ._2
+        .futureValue
+        .head
+
+      val elements: Elements = (stringToHtmlDocument andThen documentSelector) (content)(".container-box-anunturi")
+
+      val iterator = elements.select("[itemscope]").select(".box-anunt").asScala
+
+      for {element <- iterator} println(element)
+
+
     }
   }
 }

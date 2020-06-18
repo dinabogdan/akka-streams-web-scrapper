@@ -4,11 +4,12 @@ import akka.NotUsed
 import akka.actor.{ActorRefFactory, ActorSystem}
 import akka.stream.Materializer
 import akka.stream.scaladsl.Source
-import akka.util.Timeout
-import com.freesoft.scrapper.infrastructure.{FileContentSourceProvider, HttpRequestURI, EstateTypesFilter, PlacesFilter, SaleTypeFilter, WebScraper, WebScraperConfig}
-import org.scalatest.{BeforeAndAfterAll, Suite}
+import com.freesoft.scrapper.domain._
+import com.freesoft.scrapper.infrastructure._
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.{BeforeAndAfterAll, Suite}
 
+import scala.collection.immutable
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 
@@ -49,4 +50,19 @@ trait AkkaSpec extends ScalaFutures with BeforeAndAfterAll {
   )
 
   val webScraper = new WebScraper(webScraperConfig)
+
+  val apartmentTransformer: ElementTransformer[Estate] = ApartmentTransformer()
+  val houseTransformer: ElementTransformer[Estate] = HouseTransformer()
+  val buildingAreaTransformer: ElementTransformer[Estate] = BuildingAreaTransformer()
+  val agricultureAreaTransformer: ElementTransformer[Estate] = AgricultureAreaTransformer()
+
+  private val transformers: Map[EstateTypes.EstateType, ElementTransformer[Estate]] = immutable.Map(
+    (EstateTypes.Apartment, apartmentTransformer),
+    (EstateTypes.House, houseTransformer),
+    (EstateTypes.BuildingArea, buildingAreaTransformer),
+    (EstateTypes.AgricultureArea, agricultureAreaTransformer)
+  )
+
+  val transformersDispatcher: ElementTransformerDispatcher = new ElementTransformerDispatcher(transformers)
+
 }

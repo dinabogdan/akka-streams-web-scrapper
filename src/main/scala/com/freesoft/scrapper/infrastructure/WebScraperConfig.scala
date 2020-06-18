@@ -2,9 +2,7 @@ package com.freesoft.scrapper.infrastructure
 
 import com.typesafe.config.{Config, ConfigFactory}
 
-class WebScraperConfig(
-                        val configFileName: String
-                      ) {
+class WebScraperConfig(val configFileName: String) {
 
   private lazy val config: Config = ConfigFactory.load(configFileName)
 

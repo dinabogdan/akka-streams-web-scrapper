@@ -10,11 +10,9 @@ import akka.stream.scaladsl.{Flow, Sink, Source}
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.util.{Failure, Success, Try}
 
-class WebScraper(
-                  val webScraperConfig: WebScraperConfig
-                )(
-                  implicit val actorSystem: ActorSystem,
-                  implicit val executionContext: ExecutionContext) {
+class WebScraper(val webScraperConfig: WebScraperConfig)(
+  implicit val actorSystem: ActorSystem,
+  implicit val executionContext: ExecutionContext) {
 
   val queueRequests: Flow[Seq[HttpRequest], Seq[Future[HttpResponse]], NotUsed] = Flow[Seq[HttpRequest]]
     .map(sequence =>

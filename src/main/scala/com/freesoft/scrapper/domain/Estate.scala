@@ -1,5 +1,7 @@
 package com.freesoft.scrapper.domain
 
+import java.util.UUID
+
 object Currency {
 
   sealed trait EnumVal
@@ -22,6 +24,11 @@ object Country {
 
 object SellerType {
 
+  def asInstaceOf(value: String): SellerType.EnumVal = value match {
+    case "agency" => SellerType.Agency
+    case "individual" => SellerType.Individual
+  }
+
   sealed trait EnumVal
 
   case object Agency extends EnumVal
@@ -32,17 +39,23 @@ object SellerType {
 
 object EstateTypes {
 
-  sealed trait EstateType {
-    val value: String
+  sealed abstract class EstateType(val value: String = "")
+
+  case object Apartment extends EstateType {
+    override val value: String = "apartament"
   }
 
-  case class Apartment(value: String = "apartamente") extends EstateType
+  case object House extends EstateType {
+    override val value: String = "casavila"
+  }
 
-  case class House(value: String = "case") extends EstateType
+  case object BuildingArea extends EstateType {
+    override val value: String = "teren"
+  }
 
-  case class ConstructionLand(value: String = "terenuri constructie") extends EstateType
-
-  case class AgricultureLand(value: String = "terenuri agricole") extends EstateType
+  case object AgricultureArea extends EstateType {
+    override val value: String = "teren"
+  }
 
 }
 
@@ -50,9 +63,17 @@ object SurfaceUnitOfMeasure {
 
   sealed trait EnumVal
 
-  case object SquaredMeters
+  case object SquaredMeters extends EnumVal
 
-  case object SquaredKilometers
+  case object SquaredKilometers extends EnumVal
+
+}
+
+object LengthUnitOfMeasure {
+
+  sealed trait EnumVal
+
+  case object Meters extends EnumVal
 
 }
 
@@ -60,9 +81,9 @@ object EstateProvider {
 
   sealed trait EnumVal
 
-  case object ImobiliareRO
+  case object ImobiliareRO extends EnumVal
 
-  case object OLXRO
+  case object OLXRO extends EnumVal
 
 }
 
@@ -79,6 +100,14 @@ case class EstateSeller(name: Option[String] = None,
 
 case class EstateId(value: String)
 
+case object EstateId {
+
+  def anEstateId(): EstateId = EstateId(UUID.randomUUID().toString)
+
+}
+
+case class EstateLink(value: String)
+
 sealed abstract class Estate {
 
   val id: EstateId
@@ -88,6 +117,7 @@ sealed abstract class Estate {
   val estateType: EstateTypes.EstateType
   val surface: EstateSurface
   val provider: EstateProvider.EnumVal
+  val link: EstateLink
 }
 
 case class RoomNumbers(value: Int)
@@ -100,24 +130,59 @@ case class Apartment(override val id: EstateId,
                      override val price: EstatePrice,
                      override val place: EstatePlace,
                      override val seller: EstateSeller,
-                     override val estateType: EstateTypes.Apartment,
+                     override val estateType: EstateTypes.Apartment.type,
                      override val surface: EstateSurface,
                      override val provider: EstateProvider.EnumVal,
+                     override val link: EstateLink,
                      roomNumbers: RoomNumbers,
-                     floorNumber: FloorNumber,
-                     buildingYear: BuildingYear
-                    ) extends Estate
+                     floorNumber: Option[FloorNumber] = None,
+                     buildingYear: Option[BuildingYear] = None) extends Estate
 
 
 case class House(override val id: EstateId,
                  override val price: EstatePrice,
                  override val place: EstatePlace,
                  override val seller: EstateSeller,
-                 override val estateType: EstateTypes.Apartment,
+                 override val estateType: EstateTypes.House.type,
                  override val surface: EstateSurface,
                  override val provider: EstateProvider.EnumVal,
+                 override val link: EstateLink,
                  roomNumbers: RoomNumbers,
-                 buildingYear: BuildingYear
-                ) extends Estate
+                 buildingYear: Option[BuildingYear] = None) extends Estate
+
+object AreaClassification {
+
+  sealed class EnumVal(name: String)
+
+  case class Urban(name: String = "intravilan") extends EnumVal(name)
+
+  case class OutsideUrban(name: String = "extravilan") extends EnumVal(name)
+
+}
+
+case class ConstructionLandStreetOpening(value: Int, unitOfMeasure: LengthUnitOfMeasure.Meters.type)
+
+case class BuildingArea(override val id: EstateId,
+                        override val price: EstatePrice,
+                        override val place: EstatePlace,
+                        override val seller: EstateSeller,
+                        override val estateType: EstateTypes.BuildingArea.type,
+                        override val surface: EstateSurface,
+                        override val provider: EstateProvider.EnumVal,
+                        override val link: EstateLink,
+                        landClassification: Option[AreaClassification.EnumVal] = None,
+                        streetOpening: Option[ConstructionLandStreetOpening] = None) extends Estate
+
+case class AgricultureArea(override val id: EstateId,
+                           override val price: EstatePrice,
+                           override val place: EstatePlace,
+                           override val seller: EstateSeller,
+                           override val estateType: EstateTypes.EstateType,
+                           override val surface: EstateSurface,
+                           override val provider: EstateProvider.EnumVal,
+                           override val link: EstateLink,
+                           landClassifications: Option[AreaClassification.EnumVal] = None,
+                           streetOpening: Option[ConstructionLandStreetOpening] = None) extends Estate
+
 
 

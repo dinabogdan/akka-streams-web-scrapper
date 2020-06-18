@@ -8,11 +8,11 @@ import scala.concurrent.Future
 
 sealed class SingleItemFilter(val item: String)
 
-case class PlacesFilter(val placeName: String) extends SingleItemFilter(placeName)
+case class PlacesFilter(placeName: String) extends SingleItemFilter(placeName)
 
-case class EstateTypesFilter(val immobileType: String) extends SingleItemFilter(immobileType)
+case class EstateTypesFilter(immobileType: String) extends SingleItemFilter(immobileType)
 
-case class SaleTypeFilter(val saleType: String) extends SingleItemFilter(saleType)
+case class SaleTypeFilter(saleType: String) extends SingleItemFilter(saleType)
 
 class FileContentSourceProvider[+T <: SingleItemFilter](val fileName: String,
                                                         val f: String => T)

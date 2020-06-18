@@ -4,10 +4,10 @@ import akka.NotUsed
 import akka.http.scaladsl.model.HttpRequest
 import akka.stream.scaladsl.Flow
 
-case class HttpRequestURI(val saleType: Option[String] = Option.empty,
-                          val estateType: Option[String] = Option.empty,
-                          val place: Option[String] = Option.empty,
-                          val pageNumber: Int = 0) {
+case class HttpRequestURI(saleType: Option[String] = Option.empty,
+                          estateType: Option[String] = Option.empty,
+                          place: Option[String] = Option.empty,
+                          pageNumber: Int = 0) {
   def addPlace(placeFilter: PlacesFilter): HttpRequestURI = {
     copy(place = Some(placeFilter.placeName))
   }
@@ -21,11 +21,9 @@ case class HttpRequestURI(val saleType: Option[String] = Option.empty,
   }
 }
 
-class ImobiliareHttpRequestProvider(
-                                     val saleTypeFilterProvider: FileContentSourceProvider[SaleTypeFilter],
-                                     val immobileTypesFilterProvider: FileContentSourceProvider[EstateTypesFilter],
-                                     val placesFilterProvider: FileContentSourceProvider[PlacesFilter]
-                                   ) {
+class ImobiliareHttpRequestProvider(val saleTypeFilterProvider: FileContentSourceProvider[SaleTypeFilter],
+                                    val immobileTypesFilterProvider: FileContentSourceProvider[EstateTypesFilter],
+                                    val placesFilterProvider: FileContentSourceProvider[PlacesFilter]) {
 
   val addSaleTypes: Flow[HttpRequestURI, Seq[HttpRequestURI], NotUsed] = Flow[HttpRequestURI]
     .flatMapConcat(httpRequest => saleTypeFilterProvider.items.fold(List[HttpRequestURI]()) {

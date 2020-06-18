@@ -9,6 +9,12 @@ libraryDependencies += "com.typesafe.akka" %% "akka-slf4j" % "2.6.6"
 
 libraryDependencies += "com.typesafe.akka" %% "akka-http" % "10.1.12"
 
+libraryDependencies += "com.typesafe.slick" %% "slick" % "3.3.2"
+libraryDependencies += "com.typesafe.slick" %% "slick-hikaricp" % "3.3.2"
+
+libraryDependencies += "org.slf4j" % "slf4j-nop" % "1.7.26"
+
+
 libraryDependencies += "org.jsoup" % "jsoup" % "1.13.1"
 libraryDependencies += "org.scalactic" %% "scalactic" % "3.1.2"
 
